@@ -1,0 +1,107 @@
+<html>
+<head>
+<link href='http://fonts.googleapis.com/css?family=Arvo' rel='stylesheet' type='text/css'>
+<style>
+
+body {
+  font-family: 'Arvo', Georgia, sans;
+}
+
+#container {
+  margin-top: 20px;
+}
+
+.error {
+  color: red;
+}
+
+.container {
+    float: left;
+}
+
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script>
+function setImage() {
+   $("#image").attr("src", $("#url").val());
+}
+
+function clear(c) {
+   var ctx = c.getContext("2d");
+   ctx.clearRect(0, 0, c.width, c.height);
+   var w = c.width;
+   c.width = 1;
+   c.width = w;
+}
+
+function getDominantColors() {
+   $("#error_message").html("");
+   clear($("#color_bars")[0]);
+   clear($("#color_main")[0]);
+
+   $.ajax({
+     type: 'get',
+     url:  'getColors',
+     data: 'url=' + $("#url").val() + "&k=" + $("#k").val(),
+     success: drawBars,
+     error: function (jqXHR, status, error) {
+       $("#error_message").html("Whoops probably divided by 0. Click 'Get Colors' Again!");
+     }
+   });
+}
+
+function onButtonClicked() {
+   setImage();
+   getDominantColors();
+}
+
+function drawBars(response) {   
+   var sum = response['sum'];
+   var colors = response['colors'];
+
+   var c = $("#color_bars")[0];
+   var ctx = c.getContext("2d");
+   var canvasHeight = $("#image").height();
+   var canvasWidth = $("#color_bars").width();
+   var offset = 0;
+   var max = 0;
+   var maxColor;
+   for (var i=0; i < colors.length; i++) {
+      var obj = colors[i];
+      ctx.fillStyle="#" + obj['color'];
+      var count = obj['count']
+      var height = count * canvasHeight / sum;
+      ctx.fillRect(0, offset, canvasWidth, height);
+      offset += height;
+      if (count > max) {
+        max = count;
+        maxColor = ctx.fillStyle;
+      }
+   }
+   c = $("#color_main")[0];
+   ctx = c.getContext("2d");
+   ctx.fillStyle = maxColor;
+   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+}
+
+</script>
+</head>
+
+<body>
+number of colors = <input type="text" size="2" id="k" value="3"> url = <input type="text" size="70" id="url"/>
+<button type="button" value="" onclick="onButtonClicked();">Get Colors</button>
+<div id="error_message" class="error"></div>
+<div id="container">
+   <div id="image_container" class="container">
+   <img id="image"/>
+   </div>
+   <div id="color_bars_container" class="container">
+     <canvas id="color_bars" width="100" height="1000"/>
+   </div>
+   <div id="color_main_container" class="container">
+     <canvas id="color_main" width="100" height="1000"/>
+   </div>
+
+</div>
+</body>
+</html>
