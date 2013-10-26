@@ -16,13 +16,12 @@ def distance(a, b):
     return 0
 
 
-def bucketize(means, data, n):
+def cluster(means, data, n):
     """ Cluster the data around the means. Vectors are of length n"""
     num_pixels = len(data) / n
     k = len(means) / n
     sums = [0 for i in range(len(means))]
     counts = [0 for i in range(k)]
-    logging.debug("Bucketize %d %d" % (num_pixels, k))
     for i in range(num_pixels):
         offset = i * n
         pixel = data[offset : offset + n]
@@ -46,7 +45,7 @@ def bucketize(means, data, n):
 
 
 def kmeans(k, data, n, max, t):
-    """ Run k means on some data with vector length n with max value mac 
+    """ Run k means on some data with vector length n with max value max
         and convergence threshold t""" 
     # Initialize the means list randomly
     new_means = [randint(0, max) for i in range(k * n)]
@@ -55,6 +54,7 @@ def kmeans(k, data, n, max, t):
     # Run until means converge or we run this too many times
     while distance(means, new_means) > t and safety < 1000:
         means = new_means
-        (new_means, counts) = bucketize(means, data, n)
+        (new_means, counts) = cluster(means, data, n)
         safety += 1
+    logging.debug("Ran cluster %d times for threshold  %d" % (safety, t))
     return (new_means, counts)

@@ -21,7 +21,7 @@ import kmeans
 from urllib2 import urlopen
 from google.appengine.api import images
 
-MAX = 100
+MAX = 50
 PIXEL_SIZE = 3
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -48,7 +48,7 @@ class GetColors(webapp2.RequestHandler):
         width = raw_width
         height = raw_height
         # Resize to max
-        if raw_width > MAX and row_height > MAX:
+        if raw_width > MAX and raw_height > MAX:
             if raw_width > raw_height:
                 height = MAX
                 width = width * MAX / height
