@@ -21,7 +21,7 @@ import kmeans
 from urllib2 import urlopen
 from google.appengine.api import images
 
-MAX = 50
+MAX = 44
 PIXEL_SIZE = 3
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -37,7 +37,7 @@ class GetColors(webapp2.RequestHandler):
     def get(self):
         url = self.request.get('url')
         k = int(self.request.get('k', default_value=3))
-        t = int(self.request.get('t', default_value=10))
+        t = int(self.request.get('t', default_value=144))
         result = urlopen(url)
         # Get image
         if (result.getcode() == 200):

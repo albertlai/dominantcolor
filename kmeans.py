@@ -15,7 +15,6 @@ def distance(a, b):
         return sum
     return 0
 
-
 def cluster(means, data, n):
     """ Cluster the data around the means. Vectors are of length n"""
     num_pixels = len(data) / n
@@ -39,17 +38,25 @@ def cluster(means, data, n):
         # Add the pixel to the running count for that mean's cluster
         sums[m : m + n] = map(operator.add, sums[m : m + n], pixel)
     # Find the new average for all the data points in each cluster
-    means = [x / (counts[i / n]) for i, x in enumerate(sums)]
-    counts = counts
+    means = [-1 if counts[i/n] == 0 else x / (counts[i/n]) for i, x in enumerate(sums)]
     return (means, counts)
 
+def get_random_mean(data, n, max_val):
+    """ Generate a random mean from the dataset """
+#    new_means = [randint(0, max_val) for i in range(k * n)]
+    num_pixels = len(data) / n
+    start = randint(0, num_pixels)
+    # Pick a random pixel and add a random perturbation, clamping
+    return map(lambda x: min(max_val, max(0, x + randint(-1,1))), data[start : start + n])
 
-def kmeans(k, data, n, max, t):
+def kmeans(k, data, n, max_val, t):
     """ Run k means on some data with vector length n with max value max
         and convergence threshold t""" 
-    # Initialize the means list randomly
-    new_means = [randint(0, max) for i in range(k * n)]
-    means = [max * 2 for i in range(len(new_means))]
+    new_means = []
+    for i in range(k):
+        new_means += get_random_mean(data, n, max_val)
+    logging.debug(new_means)
+    means = [-max_val for i in range(len(new_means))] # dummy means
     safety = 0
     # Run until means converge or we run this too many times
     while distance(means, new_means) > t and safety < 1000:
